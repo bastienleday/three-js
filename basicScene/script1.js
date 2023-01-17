@@ -1,4 +1,4 @@
-const canvas = document.querySelector('.webg1');
+const canvas = document.querySelector('.webg2');
 
 const scene = new THREE.Scene();
 

@@ -3,8 +3,65 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { OrbitControls } from 'three/examples/jsm/controls/Orbitcontrols.js'
 import * as dat from 'dat.gui';
-
+// import imagesource from '../static/color.jpg'
 import GUI from 'lil-gui';
+import { BufferGeometry, LoadingManager } from 'three';
+
+
+/**
+ * Textures 
+ * la texture est déclarée avant la fonction de chargement de l'image et ensuite mise à jour une foi l'image chargée..on évite les problèmes de scope.
+ */
+
+// const image = new Image();
+// const texture = new THREE.Texture(image);
+// image.onload = () =>{
+
+//     texture.needsUpdate = true;
+// }
+// image.src = '/textures/color.jpg' 
+
+/**
+ * Texture loader
+ */
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onStart = () =>{
+    console.log('onStart');
+};
+loadingManager.onLoad = () =>{
+    console.log('onLoaded');
+};
+loadingManager.onProgress = () =>{
+    console.log('onProgress');
+};
+loadingManager.onError = () =>{
+    console.log('onError');
+}
+
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const colorTexture = textureLoader.load('/textures/minecraft.png');
+const alphaTexture = textureLoader.load('/textures/alpha.jpg');
+const heightTexture = textureLoader.load('/textures/height.jpg');
+const metalnessTexture = textureLoader.load('/textures/metalness.jpg');
+const normalTexture = textureLoader.load('/textures/normal.jpg');
+const ambientOcclusionTexture = textureLoader.load('/textures/ambientOcclusion.jpg');
+const roughnessTexture = textureLoader.load('/textures/roughness.jpg');
+
+// colorTexture.repeat.x = 2;
+// colorTexture.repeat.y = 3;
+// colorTexture.wrapS = THREE.MirroredRepeatWrapping;
+// colorTexture.wrapT = THREE.MirroredRepeatWrapping;
+
+// colorTexture.offset.x = 0
+// colorTexture.rotation = Math.PI * 0.25;
+// colorTexture.center.x = 0.5;
+// colorTexture.center.y = 0.5;
+
+colorTexture.magFilter = THREE.NearestFilter;
+
+
+
 
 // console.log(OrbitControls);
 
@@ -23,8 +80,9 @@ gui.onChange(()=>{
 
 
 
+
 /**
- * Cursor
+ * Cursor peut être facultatif;
  */
 
 const cursor = {
@@ -49,9 +107,23 @@ const scene = new THREE.Scene()
 /**
  * Objects
  */
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: parameters })
+const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+console.log(geometry.attributes.uv)
+
+
+// const positionArray = new Float32Array([
+//     0, 0, 0,
+//     0, 1, 0,
+//     1, 0, 0
+// ]);
+
+// const positionAttribute = new THREE.BufferAttribute(positionArray, 3);
+
+// geometry.setAttribute('position', positionAttribute);
+
+const material = new THREE.MeshBasicMaterial({ map: colorTexture })
 const mesh = new THREE.Mesh(geometry, material)
+
 // mesh.position.y = 1;
 // x, y, z
 scene.add(mesh)
@@ -89,8 +161,8 @@ scene.add(mesh)
 // mesh.rotation.set(Math.PI * 0.7, Math.PI * 0.8, Math.PI);
 
 //axe helper
-// const axesHelper = new THREE.AxesHelper(30)
-// scene.add(axesHelper);
+const axesHelper = new THREE.AxesHelper(30)
+scene.add(axesHelper);
 
 
 /**
@@ -175,9 +247,9 @@ window.addEventListener('dblclick', () => {
 /**
  * Camera
  */
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 1000);
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000);
 // const camera = new THREE.OrthographicCamera(-1 * aspectRatio, 1 * aspectRatio, 1, -1, 0.1, 100);
-camera.position.z = 2;
+camera.position.z = 5;
 // camera.position.y= 2;
 // camera.position.x = 2;
 camera.lookAt(mesh.position);
